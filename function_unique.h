@@ -28,10 +28,10 @@ namespace std _GLIBCXX_VISIBILITY(default)
 _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
   template<typename _Signature>
-    class function;
+    class unique_function;
 
   /// Base class of all polymorphic function object wrappers.
-  class _Function_base
+  class _Unique_Function_base
   {
   public:
     static const std::size_t _M_max_size = sizeof(_Nocopy_types);
@@ -124,7 +124,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
 	template<typename _Signature>
 	  static bool
-	  _M_not_empty_function(const function<_Signature>& __f)
+	  _M_not_empty_function(const unique_function<_Signature>& __f)
 	  { return static_cast<bool>(__f); }
 
 	template<typename _Tp>
@@ -155,7 +155,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     template<typename _Functor>
       class _Ref_manager : public _Base_manager<_Functor*>
       {
-	typedef _Function_base::_Base_manager<_Functor*> _Base;
+	typedef _Unique_Function_base::_Base_manager<_Functor*> _Base;
 
       public:
 	static bool
@@ -187,9 +187,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	}
       };
 
-    _Function_base() : _M_manager(0) { }
+    _Unique_Function_base() : _M_manager(0) { }
 
-    ~_Function_base()
+    ~_Unique_Function_base()
     {
       if (_M_manager)
 	_M_manager(_M_functor, _M_functor, __destroy_functor);
@@ -206,13 +206,13 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   };
 
   template<typename _Signature, typename _Functor>
-    class _Function_handler;
+    class _Unique_Function_handler;
 
   template<typename _Res, typename _Functor, typename... _ArgTypes>
-    class _Function_handler<_Res(_ArgTypes...), _Functor>
-    : public _Function_base::_Base_manager<_Functor>
+    class _Unique_Function_handler<_Res(_ArgTypes...), _Functor>
+    : public _Unique_Function_base::_Base_manager<_Functor>
     {
-      typedef _Function_base::_Base_manager<_Functor> _Base;
+      typedef _Unique_Function_base::_Base_manager<_Functor> _Base;
 
     public:
       static _Res
@@ -224,10 +224,10 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     };
 
   template<typename _Functor, typename... _ArgTypes>
-    class _Function_handler<void(_ArgTypes...), _Functor>
-    : public _Function_base::_Base_manager<_Functor>
+    class _Unique_Function_handler<void(_ArgTypes...), _Functor>
+    : public _Unique_Function_base::_Base_manager<_Functor>
     {
-      typedef _Function_base::_Base_manager<_Functor> _Base;
+      typedef _Unique_Function_base::_Base_manager<_Functor> _Base;
 
      public:
       static void
@@ -239,10 +239,10 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     };
 
   template<typename _Res, typename _Functor, typename... _ArgTypes>
-    class _Function_handler<_Res(_ArgTypes...), reference_wrapper<_Functor> >
-    : public _Function_base::_Ref_manager<_Functor>
+    class _Unique_Function_handler<_Res(_ArgTypes...), reference_wrapper<_Functor> >
+    : public _Unique_Function_base::_Ref_manager<_Functor>
     {
-      typedef _Function_base::_Ref_manager<_Functor> _Base;
+      typedef _Unique_Function_base::_Ref_manager<_Functor> _Base;
 
      public:
       static _Res
@@ -254,10 +254,10 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     };
 
   template<typename _Functor, typename... _ArgTypes>
-    class _Function_handler<void(_ArgTypes...), reference_wrapper<_Functor> >
-    : public _Function_base::_Ref_manager<_Functor>
+    class _Unique_Function_handler<void(_ArgTypes...), reference_wrapper<_Functor> >
+    : public _Unique_Function_base::_Ref_manager<_Functor>
     {
-      typedef _Function_base::_Ref_manager<_Functor> _Base;
+      typedef _Unique_Function_base::_Ref_manager<_Functor> _Base;
 
      public:
       static void
@@ -270,10 +270,10 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
   template<typename _Class, typename _Member, typename _Res,
 	   typename... _ArgTypes>
-    class _Function_handler<_Res(_ArgTypes...), _Member _Class::*>
-    : public _Function_handler<void(_ArgTypes...), _Member _Class::*>
+    class _Unique_Function_handler<_Res(_ArgTypes...), _Member _Class::*>
+    : public _Unique_Function_handler<void(_ArgTypes...), _Member _Class::*>
     {
-      typedef _Function_handler<void(_ArgTypes...), _Member _Class::*>
+      typedef _Unique_Function_handler<void(_ArgTypes...), _Member _Class::*>
 	_Base;
 
      public:
@@ -286,13 +286,13 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     };
 
   template<typename _Class, typename _Member, typename... _ArgTypes>
-    class _Function_handler<void(_ArgTypes...), _Member _Class::*>
-    : public _Function_base::_Base_manager<
+    class _Unique_Function_handler<void(_ArgTypes...), _Member _Class::*>
+    : public _Unique_Function_base::_Base_manager<
 		 _Simple_type_wrapper< _Member _Class::* > >
     {
       typedef _Member _Class::* _Functor;
       typedef _Simple_type_wrapper<_Functor> _Wrapper;
-      typedef _Function_base::_Base_manager<_Wrapper> _Base;
+      typedef _Unique_Function_base::_Base_manager<_Wrapper> _Base;
 
     public:
       static bool
@@ -330,15 +330,15 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       = __or_<is_void<_To>, is_convertible<_From, _To>>;
 
   /**
-   *  @brief Primary class template for std::function.
+   *  @brief Primary class template for std::unique_function.
    *  @ingroup functors
    *
    *  Polymorphic function wrapper.
    */
   template<typename _Res, typename... _ArgTypes>
-    class function<_Res(_ArgTypes...)>
+    class unique_function<_Res(_ArgTypes...)>
     : public _Maybe_unary_or_binary_function<_Res, _ArgTypes...>,
-      private _Function_base
+      private _Unique_Function_base
     {
       typedef _Res _Signature_type(_ArgTypes...);
 
@@ -349,7 +349,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       // Used so the return type convertibility checks aren't done when
       // performing overload resolution for copy construction/assignment.
       template<typename _Tp>
-	using _NotSelf = __not_<is_same<_Tp, function>>;
+	using _NotSelf = __not_<is_same<_Tp, unique_function>>;
 
       template<typename _Functor>
 	using _Callable
@@ -368,15 +368,15 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
        *  @brief Default construct creates an empty function call wrapper.
        *  @post @c !(bool)*this
        */
-      function() noexcept
-      : _Function_base() { }
+      unique_function() noexcept
+      : _Unique_Function_base() { }
 
       /**
        *  @brief Creates an empty function call wrapper.
        *  @post @c !(bool)*this
        */
-      function(nullptr_t) noexcept
-      : _Function_base() { }
+      unique_function(nullptr_t) noexcept
+      : _Unique_Function_base() { }
 
       /**
        *  @brief %Function copy constructor.
@@ -386,7 +386,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
        *  The newly-created %function contains a copy of the target of @a
        *  __x (if it has one).
        */
-      function(const function& __x);
+      unique_function(const unique_function& __x);
 
       /**
        *  @brief %Function move constructor.
@@ -395,7 +395,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
        *  The newly-created %function contains the target of @a __x
        *  (if it has one).
        */
-      function(function&& __x) : _Function_base()
+      unique_function(unique_function&& __x) : _Unique_Function_base()
       {
 	__x.swap(*this);
       }
@@ -420,7 +420,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
        */
       template<typename _Functor,
 	       typename = _Requires<_Callable<_Functor>, void>>
-	function(_Functor);
+	unique_function(_Functor);
 
       /**
        *  @brief %Function assignment operator.
@@ -434,10 +434,10 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
        *  If @a __x targets a function pointer or a reference to a function
        *  object, then this operation will not throw an %exception.
        */
-      function&
-      operator=(const function& __x)
+      unique_function&
+      operator=(const unique_function& __x)
       {
-	function(__x).swap(*this);
+	unique_function(__x).swap(*this);
 	return *this;
       }
 
@@ -452,10 +452,10 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
        *  If @a __x targets a function pointer or a reference to a function
        *  object, then this operation will not throw an %exception.
        */
-      function&
-      operator=(function&& __x)
+      unique_function&
+      operator=(unique_function&& __x)
       {
-	function(std::move(__x)).swap(*this);
+	unique_function(std::move(__x)).swap(*this);
 	return *this;
       }
 
@@ -466,7 +466,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
        *
        *  The target of @c *this is deallocated, leaving it empty.
        */
-      function&
+      unique_function&
       operator=(nullptr_t)
       {
 	if (_M_manager)
@@ -495,19 +495,19 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
        *  reference_wrapper<F>, this function will not throw.
        */
       template<typename _Functor>
-	_Requires<_Callable<typename decay<_Functor>::type>, function&>
+	_Requires<_Callable<typename decay<_Functor>::type>, unique_function&>
 	operator=(_Functor&& __f)
 	{
-	  function(std::forward<_Functor>(__f)).swap(*this);
+	  unique_function(std::forward<_Functor>(__f)).swap(*this);
 	  return *this;
 	}
 
       /// @overload
       template<typename _Functor>
-	function&
+	unique_function&
 	operator=(reference_wrapper<_Functor> __f) noexcept
 	{
-	  function(__f).swap(*this);
+	  unique_function(__f).swap(*this);
 	  return *this;
 	}
 
@@ -520,7 +520,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
        *  Swap the targets of @c this function object and @a __f. This
        *  function will not throw an %exception.
        */
-      void swap(function& __x)
+      void swap(unique_function& __x)
       {
 	std::swap(_M_functor, __x._M_functor);
 	std::swap(_M_manager, __x._M_manager);
@@ -598,9 +598,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
   // Out-of-line member definitions.
   template<typename _Res, typename... _ArgTypes>
-    function<_Res(_ArgTypes...)>::
-    function(const function& __x)
-    : _Function_base()
+    unique_function<_Res(_ArgTypes...)>::
+    unique_function(const unique_function& __x)
+    : _Unique_Function_base()
     {
       if (static_cast<bool>(__x))
 	{
@@ -612,11 +612,11 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
   template<typename _Res, typename... _ArgTypes>
     template<typename _Functor, typename>
-      function<_Res(_ArgTypes...)>::
-      function(_Functor __f)
-      : _Function_base()
+      unique_function<_Res(_ArgTypes...)>::
+      unique_function(_Functor __f)
+      : _Unique_Function_base()
       {
-	typedef _Function_handler<_Signature_type, _Functor> _My_handler;
+	typedef _Unique_Function_handler<_Signature_type, _Functor> _My_handler;
 
 	if (_My_handler::_M_not_empty_function(__f))
 	  {
@@ -628,7 +628,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
   template<typename _Res, typename... _ArgTypes>
     _Res
-    function<_Res(_ArgTypes...)>::
+    unique_function<_Res(_ArgTypes...)>::
     operator()(_ArgTypes... __args) const
     {
       if (_M_empty())
@@ -639,7 +639,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 #ifdef __GXX_RTTI
   template<typename _Res, typename... _ArgTypes>
     const type_info&
-    function<_Res(_ArgTypes...)>::
+    unique_function<_Res(_ArgTypes...)>::
     target_type() const noexcept
     {
       if (_M_manager)
@@ -655,7 +655,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   template<typename _Res, typename... _ArgTypes>
     template<typename _Functor>
       _Functor*
-      function<_Res(_ArgTypes...)>::
+      unique_function<_Res(_ArgTypes...)>::
       target() noexcept
       {
 	if (typeid(_Functor) == target_type() && _M_manager)
@@ -674,7 +674,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   template<typename _Res, typename... _ArgTypes>
     template<typename _Functor>
       const _Functor*
-      function<_Res(_ArgTypes...)>::
+      unique_function<_Res(_ArgTypes...)>::
       target() const noexcept
       {
 	if (typeid(_Functor) == target_type() && _M_manager)
@@ -699,13 +699,13 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
    */
   template<typename _Res, typename... _Args>
     inline bool
-    operator==(const function<_Res(_Args...)>& __f, nullptr_t) noexcept
+    operator==(const unique_function<_Res(_Args...)>& __f, nullptr_t) noexcept
     { return !static_cast<bool>(__f); }
 
   /// @overload
   template<typename _Res, typename... _Args>
     inline bool
-    operator==(nullptr_t, const function<_Res(_Args...)>& __f) noexcept
+    operator==(nullptr_t, const unique_function<_Res(_Args...)>& __f) noexcept
     { return !static_cast<bool>(__f); }
 
   /**
@@ -717,13 +717,13 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
    */
   template<typename _Res, typename... _Args>
     inline bool
-    operator!=(const function<_Res(_Args...)>& __f, nullptr_t) noexcept
+    operator!=(const unique_function<_Res(_Args...)>& __f, nullptr_t) noexcept
     { return static_cast<bool>(__f); }
 
   /// @overload
   template<typename _Res, typename... _Args>
     inline bool
-    operator!=(nullptr_t, const function<_Res(_Args...)>& __f) noexcept
+    operator!=(nullptr_t, const unique_function<_Res(_Args...)>& __f) noexcept
     { return static_cast<bool>(__f); }
 
   // [20.7.15.2.7] specialized algorithms
@@ -735,7 +735,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
    */
   template<typename _Res, typename... _Args>
     inline void
-    swap(function<_Res(_Args...)>& __x, function<_Res(_Args...)>& __y)
+    swap(unique_function<_Res(_Args...)>& __x, unique_function<_Res(_Args...)>& __y)
     { __x.swap(__y); }
 
 _GLIBCXX_END_NAMESPACE_VERSION
